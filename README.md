@@ -31,18 +31,23 @@ Reflection describes the current pipeline, identifies its potential shortcomings
 
 ### 1. Pipeline
 My pipeline consists of 5 steps which I present based on image *solidYellowLeft.jpg*:
+
 <img src="test_images_output/5_0_original.jpg" width="400">
 
 First, I convert the images to gray scale,
+
 <img src="test_images_output/5_1_gray.jpg" width="400">
 
 then I apply the Gaussian smoothing with `kernel_size = 5`
+
 <img src="test_images_output/5_2_blur_gray.jpg" width="400">
 
 I use canny to find the edges using `low_threshold = 33` and `high_threshold = 100`
+
 <img src="test_images_output/5_3_canny.jpg" width="400">
 
 In order to analyze only the relevant part of the images, I choose the region with 4 vertices masking everything else out outside this region. This region is relative to the image size.
+
 <img src="test_images_output/5_4_region.jpg" width="400">
 
 As a final step, I select the relevant lines by adjusting the hough space parameters and choosing reasonable values of the line slopes:
