@@ -1,56 +1,76 @@
+
 # **Finding Lane Lines on the Road** 
-[![Udacity - Self-Driving Car NanoDegree](https://s3.amazonaws.com/udacity-sdc/github/shield-carnd.svg)](http://www.udacity.com/drive)
 
-<img src="examples/laneLines_thirdPass.jpg" width="480" alt="Combined Image" />
+The goals / steps of this project are the following:
+* Make a pipeline that finds lane lines on the road
+* Reflect on your work in a written report
 
-Overview
+## Project Content
+The Project consists of the following files and folders:
+- test_images            (consists of the test images)
+- test_images_output     (consists of the output images)
+- test_videos            (consists of the test videos)
+- test_videos_output     (consists of the output videos)
+- P1.html                (the html-page that presents the output of the project)
+- P1.ipynb               (the notebook with the project code)
+- writeup.ipynb          (the current file)
+
+[//]: # (Image References)
+
+[original]: ./test_images_output/5_0_original.jpg "Original solidYellowLeft.jpg"
+[gray]: ./test_images_output/5_1_gray.jpg "Gray solidYellowLeft.jpg"
+[blur]: ./test_images_output/5_2_blur_gray.jpg "Blur solidYellowLeft.jpg"
+[canny]: ./test_images_output/5_3_canny.jpg "Canny solidYellowLeft.jpg"
+[region]: ./test_images_output/5_4_region.jpg "Region solidYellowLeft.jpg"
+[hough]: ./test_images_output/5_5_hough.jpg "Hough solidYellowLeft.jpg"
+
 ---
 
-When we drive, we use our eyes to decide where to go.  The lines on the road that show us where the lanes are act as our constant reference for where to steer the vehicle.  Naturally, one of the first things we would like to do in developing a self-driving car is to automatically detect lane lines using an algorithm.
+## Reflection
+Reflection describes the current pipeline, identifies its potential shortcomings and suggests possible improvements.
 
-In this project you will detect lane lines in images using Python and OpenCV.  OpenCV means "Open-Source Computer Vision", which is a package that has many useful tools for analyzing images.  
+### 1. Pipeline
+My pipeline consists of 5 steps which I present based on image *solidYellowLeft.jpg*:
+<img src="test_images_output/5_0_original.jpg" width="400">
+First, I convert the images to gray scale,
+<img src="test_images_output/5_1_gray.jpg" width="400">
+then I apply the Gaussian smoothing with `kernel_size = 5`
+<img src="test_images_output/5_2_blur_gray.jpg" width="400">
+I use canny to find the edges using `low_threshold = 33` and `high_threshold = 100`
+<img src="test_images_output/5_3_canny.jpg" width="400">
+In order to analyze only the relevant part of the images, I choose the region with 4 vertices masking everything else out outside this region. This region is relative to the image size.
+<img src="test_images_output/5_4_region.jpg" width="400">
+As a final step, I select the relevant lines by adjusting the hough space parameters and choosing reasonable values of the line slopes:
 
-To complete the project, two files will be submitted: a file containing project code and a file containing a brief write up explaining your solution. We have included template files to be used both for the [code](https://github.com/udacity/CarND-LaneLines-P1/blob/master/P1.ipynb) and the [writeup](https://github.com/udacity/CarND-LaneLines-P1/blob/master/writeup_template.md).The code file is called P1.ipynb and the writeup template is writeup_template.md 
+|Parameter      |     Value     |Description    |
+|:-------------|:-------------:|:---------------|
+|rho |2                 |distance resolution in pixels of the Hough grid |
+    |theta | pi / 180       |angular resolution in radians of the Hough grid |
+    |threshold | 50|minimum number of votes (intersections in Hough grid cell) |
+    |min_line_length |40    |minimum number of pixels making up a line |
+    |max_line_gap | 25 |the maximum distance between segments that should be connected into a  line |
+<img src="test_images_output/5_5_hough.jpg" width="400">
 
-To meet specifications in the project, take a look at the requirements in the [project rubric](https://review.udacity.com/#!/rubrics/322/view)
-
-
-Creating a Great Writeup
----
-For this project, a great writeup should provide a detailed response to the "Reflection" section of the [project rubric](https://review.udacity.com/#!/rubrics/322/view). There are three parts to the reflection:
-
-1. Describe the pipeline
-
-2. Identify any shortcomings
-
-3. Suggest possible improvements
-
-We encourage using images in your writeup to demonstrate how your pipeline works.  
-
-All that said, please be concise!  We're not looking for you to write a book here: just a brief description.
-
-You're not required to use markdown for your writeup.  If you use another method please just submit a pdf of your writeup. Here is a link to a [writeup template file](https://github.com/udacity/CarND-LaneLines-P1/blob/master/writeup_template.md). 
+After testing images, I try the pipeline on the provided test videos. It works pretty well.
 
 
-The Project
----
+#### Function *draw_lines()*
+The key part of the pipeline is the draw_lines() function. In order to draw a single line on the left and right lanes, I modify the draw_lines() function by adding the slope calculation. I use the slope to distinguish the left and right lane lines. Based on the slope, I exclude the lines which cannot be the lane lines (the lines close to horizontal with slope between -0.3 and 0.3 are excluded).
 
-## If you have already installed the [CarND Term1 Starter Kit](https://github.com/udacity/CarND-Term1-Starter-Kit/blob/master/README.md) you should be good to go!   If not, you should install the starter kit to get started on this project. ##
+The draw_lines function also includes linear extrapolation that allows us to draw lines throughout the whole region of interest.
 
-**Step 1:** Set up the [CarND Term1 Starter Kit](https://classroom.udacity.com/nanodegrees/nd013/parts/fbf77062-5703-404e-b60c-95b78b2f3f9e/modules/83ec35ee-1e02-48a5-bdb7-d244bd47c2dc/lessons/8c82408b-a217-4d09-b81d-1bda4c6380ef/concepts/4f1870e0-3849-43e4-b670-12e6f2d4b7a7) if you haven't already.
+#### Challenge
+I fine-tune the parameters further to make the pipeline working on challenge video. The thresholds for the canny method are therefore chosen to be low. This is done in order to recognize left yellow line on the bright video. Moreover, I choose the region of interest to be relative to the image size since the resolution in this case differs from the test images and videos.
 
-**Step 2:** Open the code in a Jupyter Notebook
 
-You will complete the project code in a Jupyter notebook.  If you are unfamiliar with Jupyter Notebooks, check out <A HREF="https://www.packtpub.com/books/content/basics-jupyter-notebook-and-python" target="_blank">Cyrille Rossant's Basics of Jupyter Notebook and Python</A> to get started.
+### 2. Shortcomings with pipeline
+As the challenge video shows, the shortcoming of the current approach is the curvy lane. The chosen hough space method can badly evaluate curves.
 
-Jupyter is an Ipython notebook where you can run blocks of code and see results interactively.  All the code for this project is contained in a Jupyter notebook. To start Jupyter in your browser, use terminal to navigate to your project directory and then run the following command at the terminal prompt (be sure you've activated your Python 3 carnd-term1 environment as described in the [CarND Term1 Starter Kit](https://github.com/udacity/CarND-Term1-Starter-Kit/blob/master/README.md) installation instructions!):
+Another shortcoming could be the brightness of the video, especially when there are shadows on the road. The algorithm cannot really recognize the line patterns.
 
-`> jupyter notebook`
 
-A browser window will appear showing the contents of the current directory.  Click on the file called "P1.ipynb".  Another browser window will appear displaying the notebook.  Follow the instructions in the notebook to complete the project.  
+### 3. Possible improvements to pipeline
 
-**Step 3:** Complete the project and submit both the Ipython notebook and the project writeup
+First of all, I would not use hough space in this case, but rather an algorithm that can recognize and evaluate curves.
 
-## How to write a README
-A well written README file can enhance your project and portfolio.  Develop your abilities to create professional README files by completing [this free course](https://www.udacity.com/course/writing-readmes--ud777).
-
+Another potential improvement could be an adjustable region that reflects the curvature of the road lanes. That would allow us to exclude lines which are not relevant for the analysis.
