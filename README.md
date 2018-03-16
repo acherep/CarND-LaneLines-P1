@@ -59,9 +59,12 @@ As a final step, I select the relevant lines by adjusting the hough space parame
 |threshold | 50|minimum number of votes (intersections in Hough grid cell) |
 |min_line_length |40    |minimum number of pixels making up a line |
 |max_line_gap | 25 |the maximum distance between segments that should be connected into a  line |
+
 <img src="test_images_output/5_5_hough.jpg" width="400">
 
 After testing images, I try the pipeline on the provided test videos. It works pretty well.
+<img src="test_videos_output_gif/solidWhiteRight.gif" width="400">
+<img src="test_videos_output_gif/solidYellowLeft.gif" width="400">
 
 #### Function *draw_lines()*
 The key part of the pipeline is the draw_lines() function. In order to draw a single line on the left and right lanes, I modify the draw_lines() function by adding the slope calculation. I use the slope to distinguish the left and right lane lines. Based on the slope, I exclude the lines which cannot be the lane lines (the lines close to horizontal with slope between -0.3 and 0.3 are excluded).
@@ -70,11 +73,13 @@ The draw_lines function also includes linear extrapolation that allows us to dra
 
 #### Challenge
 I fine-tune the parameters further to make the pipeline working on challenge video. The thresholds for the canny method are therefore chosen to be low. This is done in order to recognize left yellow line on the bright video. Moreover, I choose the region of interest to be relative to the image size since the resolution in this case differs from the test images and videos.
+<img src="test_videos_output_gif/challenge.gif" width="400">
 
 ### 2. Shortcomings with pipeline
 As the challenge video shows, the shortcoming of the current approach is the curvy lane. The chosen hough space method can badly evaluate curves.
 
 Another shortcoming could be the brightness of the video, especially when there are shadows on the road. The algorithm cannot really recognize the line patterns.
+
 
 ### 3. Possible improvements to pipeline
 
